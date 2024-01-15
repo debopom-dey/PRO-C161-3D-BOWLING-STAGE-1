@@ -29,12 +29,36 @@ AFRAME.registerComponent("bowling-balls", {
 
         var scene = document.querySelector("#scene");
 
+        ball.setAttribute("dynamic-body", {
+          shape: "sphere",
+          mass: "10",
+        });
+
+        ball.addEventListener("collide", this.removeBall);
+
         scene.appendChild(ball);
       }
     });
-   
+  },
+  removeBall: function (e) {
+
+    var element = e.detail.target.el;
+
+    var elementHit = e.detail.body.el;
+
+    if (elementHit.id.includes("pin")) {
+      
+      var impulse = new CANNON.Vec3(-2,2,1);
+      var worldPoint = new CANNON.Vec3().copy(
+        elementHit.getAttribute("position")
+      );
+
+      elementHit.body.applyForce(impulse, worldPoint);
+      
+      element.removeEventListener("collide", this.removeBall);
+      
+      var scene = document.querySelector("#scene");
+      scene.removeChild(element);
     }
   },
-);
-
-
+});
